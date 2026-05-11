@@ -1,0 +1,12 @@
+[build]
+  base    = "artifacts/museum-quest"
+  command = "npm install -g pnpm && pnpm install --frozen-lockfile && pnpm run build:netlify"
+  publish = "artifacts/museum-quest/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
