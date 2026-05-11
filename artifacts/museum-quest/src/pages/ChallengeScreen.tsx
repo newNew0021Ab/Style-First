@@ -1,83 +1,204 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { ChevronLeft, X, ArrowRight } from "lucide-react";
 import { challenges } from "../data/challenges";
 
 interface ChallengeScreenProps {
   currentChallenge: number;
-  onAnswer: (answer: string) => void;
+  previousAnswer?: string;
+  onNext: (answer: string) => void;
+  onBack?: () => void;
+  onExit: () => void;
 }
 
-export function ChallengeScreen({ currentChallenge, onAnswer }: ChallengeScreenProps) {
+export function ChallengeScreen({
+  currentChallenge,
+  previousAnswer,
+  onNext,
+  onBack,
+  onExit,
+}: ChallengeScreenProps) {
   const challenge = challenges[currentChallenge - 1];
-  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(
+    previousAnswer ?? null
+  );
+
+  useEffect(() => {
+    setSelectedChoice(previousAnswer ?? null);
+  }, [currentChallenge, previousAnswer]);
 
   const handleSelect = (choice: string) => {
-    if (selectedChoice) return; // Prevent multiple clicks
     setSelectedChoice(choice);
-    onAnswer(choice);
+  };
+
+  const handleNext = () => {
+    if (!selectedChoice) return;
+    onNext(selectedChoice);
   };
 
   const Icon = challenge.icon;
+  const progress = (currentChallenge / 8) * 100;
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#FFF8F0] p-6 relative">
-      {/* Progress Bar */}
-      <div className="w-full flex items-center justify-between mb-8 mt-4">
-        <span className="text-[#3D1A6E] font-bold text-lg">
-          {currentChallenge} / 8 заданий
-        </span>
-        <div className="flex-1 ml-4 h-4 bg-[#FFE8D6] rounded-full overflow-hidden">
-          <motion.div 
-            className="h-full bg-[#FF6B6B] rounded-full"
-            initial={{ width: `${((currentChallenge - 1) / 8) * 100}%` }}
-            animate={{ width: `${(currentChallenge / 8) * 100}%` }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-          />
+    <div
+      className="flex flex-col h-full w-full relative"
+      style={{ background: "#FFF8F0" }}
+    >
+      {/* Top bar */}
+      <div className="flex items-center gap-3 px-5 pt-5 pb-2 shrink-0">
+        {onBack ? (
+          <motion.button
+            data-testid="button-back"
+            whileTap={{ scale: 0.88 }}
+            onClick={onBack}
+            className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
+            style={{ background: "#F0E6FF", color: "#3D1A6E" }}
+          >
+            <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
+          </motion.button>
+        ) : (
+          <div className="w-11 h-11 shrink-0" />
+        )}
+
+        {/* Progress */}
+        <div className="flex-1 flex flex-col gap-1">
+          <span
+            className="text-sm font-bold text-right"
+            style={{ color: "#3D1A6E", opacity: 0.6 }}
+          >
+            {currentChallenge} / 8
+          </span>
+          <div
+            className="w-full h-3 rounded-full overflow-hidden"
+            style={{ background: "#FFE8D6" }}
+          >
+            <motion.div
+              className="h-full rounded-full"
+              style={{ background: "#FF6B6B" }}
+              initial={{ width: `${((currentChallenge - 1) / 8) * 100}%` }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.45, ease: "easeInOut" }}
+            />
+          </div>
         </div>
+
+        <motion.button
+          data-testid="button-exit"
+          whileTap={{ scale: 0.88 }}
+          onClick={onExit}
+          className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
+          style={{ background: "#FFE8D6", color: "#FF6B6B" }}
+        >
+          <X className="w-5 h-5" strokeWidth={2.5} />
+        </motion.button>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto">
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
+      {/* Content */}
+      <div className="flex-1 flex flex-col items-center justify-center px-5 w-full max-w-md mx-auto overflow-y-auto py-4">
+        <motion.div
+          key={currentChallenge}
+          initial={{ scale: 0.75, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", bounce: 0.5 }}
-          className="w-24 h-24 bg-[#3D1A6E] rounded-3xl rotate-3 flex items-center justify-center mb-8 shadow-lg"
+          transition={{ type: "spring", bounce: 0.45, duration: 0.5 }}
+          className="w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-lg rotate-3"
+          style={{ background: "#3D1A6E" }}
         >
-          <Icon className="w-12 h-12 text-[#F5A623] -rotate-3" />
+          <Icon
+            className="w-10 h-10 -rotate-3"
+            style={{ color: "#F5A623" }}
+          />
         </motion.div>
 
-        <h2 className="text-3xl md:text-4xl font-black text-center text-[#3D1A6E] mb-12 leading-tight">
+        <motion.h2
+          key={`q-${currentChallenge}`}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-2xl md:text-3xl font-black text-center mb-8 leading-snug"
+          style={{ color: "#3D1A6E" }}
+        >
           {challenge.question}
-        </h2>
+        </motion.h2>
 
-        <div className="w-full space-y-4">
+        <div className="w-full space-y-3">
           {challenge.choices.map((choice, index) => {
             const isSelected = selectedChoice === choice;
             return (
               <motion.button
                 key={index}
-                whileHover={!selectedChoice ? { scale: 1.02 } : {}}
-                whileTap={!selectedChoice ? { scale: 0.95 } : {}}
+                data-testid={`button-choice-${index}`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15 + index * 0.07 }}
                 onClick={() => handleSelect(choice)}
-                className={`w-full p-5 rounded-2xl text-xl font-bold text-left transition-all relative overflow-hidden flex items-center min-h-[80px] border-4
-                  ${isSelected 
-                    ? "bg-[#F5A623] border-[#c4841a] text-[#3D1A6E] shadow-[0_4px_0_#c4841a]" 
-                    : "bg-white border-[#FFE8D6] text-[#3D1A6E] shadow-[0_4px_0_#FFE8D6] hover:border-[#FF6B6B]"
-                  }`}
+                className="w-full p-5 rounded-2xl text-lg font-bold text-left relative overflow-hidden flex items-center min-h-[68px] border-4 transition-colors"
+                style={{
+                  background: isSelected ? "#3D1A6E" : "white",
+                  borderColor: isSelected ? "#3D1A6E" : "#FFE8D6",
+                  color: isSelected ? "white" : "#3D1A6E",
+                  boxShadow: isSelected
+                    ? "0 4px 0 #1a0b30"
+                    : "0 4px 0 #FFE8D6",
+                }}
               >
-                {isSelected && (
-                  <motion.div
-                    layoutId="outline"
-                    className="absolute inset-0 bg-[#F5A623] z-0"
-                    initial={false}
-                    animate={{ backgroundColor: "#F5A623" }}
-                  />
-                )}
-                <span className="relative z-10">{choice}</span>
+                <motion.div
+                  className="w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 mr-4"
+                  style={{
+                    borderColor: isSelected ? "rgba(255,255,255,0.4)" : "#FFE8D6",
+                    background: isSelected ? "rgba(255,255,255,0.15)" : "transparent",
+                  }}
+                  animate={{ scale: isSelected ? [1, 1.2, 1] : 1 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  {isSelected && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="w-3 h-3 rounded-full bg-white"
+                    />
+                  )}
+                </motion.div>
+                <span>{choice}</span>
               </motion.button>
             );
           })}
         </div>
+      </div>
+
+      {/* Bottom "Далее" button */}
+      <div className="px-5 pb-6 pt-2 shrink-0">
+        <motion.button
+          data-testid="button-next"
+          whileHover={selectedChoice ? { scale: 1.02 } : {}}
+          whileTap={selectedChoice ? { scale: 0.96 } : {}}
+          onClick={handleNext}
+          disabled={!selectedChoice}
+          className="w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-3 transition-all"
+          style={{
+            background: selectedChoice ? "#F5A623" : "#FFE8D6",
+            color: selectedChoice ? "#3D1A6E" : "#C4A882",
+            boxShadow: selectedChoice ? "0 6px 0 #c4841a" : "none",
+            cursor: selectedChoice ? "pointer" : "default",
+          }}
+          animate={{
+            scale: selectedChoice ? [1, 1.03, 1] : 1,
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          {currentChallenge < 8 ? (
+            <>
+              Далее
+              <ArrowRight className="w-6 h-6" strokeWidth={2.5} />
+            </>
+          ) : (
+            <>
+              Узнать результат
+              <ArrowRight className="w-6 h-6" strokeWidth={2.5} />
+            </>
+          )}
+        </motion.button>
       </div>
     </div>
   );
