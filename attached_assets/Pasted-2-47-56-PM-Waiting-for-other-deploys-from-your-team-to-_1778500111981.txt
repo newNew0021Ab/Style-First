@@ -1,0 +1,31 @@
+2:47:56 PM: Waiting for other deploys from your team to complete. Check the queue: https://app.netlify.com/teams/newnew0021ab/builds
+2:48:02 PM: build-image version: ac6eb13fbf000e5c09ad677efd8b7c3c2d0142b6 (noble-new-builds)
+2:48:02 PM: buildbot version: de14d13d022c18f089944497bd804e269fc4f82f
+2:48:02 PM: Fetching cached dependencies
+2:48:02 PM: Failed to fetch cache, continuing with build
+2:48:02 PM: Starting to prepare the repo for build
+2:48:02 PM: No cached dependencies found. Cloning fresh repo
+2:48:02 PM: git clone --filter=blob:none https://github.com/newNew0021Ab/Style-First
+2:48:02 PM: Preparing Git Reference refs/heads/main
+2:48:04 PM: Custom build path detected. Proceeding with the specified path: 'artifacts/museum-quest'
+2:48:04 PM: Custom publish path detected. Proceeding with the specified path: 'artifacts/museum-quest/artifacts/museum-quest/dist'
+2:48:04 PM: Custom build command detected. Proceeding with the specified command: 'npm install -g pnpm && pnpm install --frozen-lockfile && pnpm run build:netlify'
+2:48:04 PM: Installing dependencies
+2:48:04 PM: mise ~/.config/mise/config.toml tools: python@3.14.3
+2:48:04 PM: mise ~/.config/mise/config.toml tools: ruby@3.4.8
+2:48:05 PM: mise ~/.config/mise/config.toml tools: go@1.26.2
+2:48:05 PM: v20.20.2 is already installed.
+2:48:05 PM: Now using node v20.20.2 (npm v10.8.2)
+2:48:05 PM: Enabling Node.js Corepack
+2:48:06 PM: pnpm workspaces detected
+2:48:06 PM: Installing npm packages using pnpm version 10.30.3
+2:48:07 PM: Scope: all 9 workspace projects
+2:48:07 PM:  ERR_PNPM_OUTDATED_LOCKFILE  Cannot install with "frozen-lockfile" because pnpm-lock.yaml is not up to date with <ROOT>/artifacts/museum-quest/package.json
+2:48:07 PM: Note that in CI environments this setting is true by default. If you still need to run install in such cases, use "pnpm install --no-frozen-lockfile"
+2:48:07 PM:   Failure reason:
+2:48:07 PM:   specifiers in the lockfile don't match specifiers in package.json:
+* 1 dependencies were removed: @workspace/api-client-react@workspace:*
+2:48:07 PM: Error during pnpm install
+2:48:07 PM: Failing build: Failed to install dependencies
+2:48:07 PM: Finished processing build request in 5.22s
+2:48:07 PM: Failed during stage 'Install dependencies': dependency_installation script returned non-zero exit code: 1
