@@ -1,6 +1,6 @@
 [build]
   base    = "artifacts/museum-quest"
-  command = "npm install -g pnpm && pnpm install --no-frozen-lockfile && pnpm run build:netlify"
+  command = "pnpm install --no-frozen-lockfile && pnpm run build:netlify"
   publish = "dist"
 
 [build.environment]
