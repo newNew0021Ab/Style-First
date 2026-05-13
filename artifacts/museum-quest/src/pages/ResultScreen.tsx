@@ -8,7 +8,7 @@ interface ResultScreenProps {
 }
 
 export function ResultScreen({ resultId, onRestart }: ResultScreenProps) {
-  const result = results.find(r => r.id === resultId) || results[4];
+  const result = results.find((r) => r.id === resultId) || results[4];
 
   return (
     <div
@@ -21,19 +21,28 @@ export function ResultScreen({ resultId, onRestart }: ResultScreenProps) {
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 80 }}
-            animate={{ opacity: [0, 1, 0], y: -400, x: (i % 2 === 0 ? 1 : -1) * (20 + i * 18) }}
+            animate={{
+              opacity: [0, 1, 0],
+              y: -400,
+              x: (i % 2 === 0 ? 1 : -1) * (20 + i * 18),
+            }}
             transition={{
               duration: 2.8 + i * 0.3,
               repeat: Infinity,
               delay: i * 0.4,
-              ease: "easeOut"
+              ease: "easeOut",
             }}
             className="absolute bottom-0 left-1/2"
           >
             <Star
               className="w-5 h-5"
-              style={{ color: i % 3 === 0 ? "#F5A623" : i % 3 === 1 ? "#FF6B6B" : "#C084FC" }}
-              fill={i % 3 === 0 ? "#F5A623" : i % 3 === 1 ? "#FF6B6B" : "#C084FC"}
+              style={{
+                color:
+                  i % 3 === 0 ? "#F5A623" : i % 3 === 1 ? "#FF6B6B" : "#C084FC",
+              }}
+              fill={
+                i % 3 === 0 ? "#F5A623" : i % 3 === 1 ? "#FF6B6B" : "#C084FC"
+              }
             />
           </motion.div>
         ))}
@@ -46,7 +55,11 @@ export function ResultScreen({ resultId, onRestart }: ResultScreenProps) {
         className="w-36 h-36 rounded-full flex items-center justify-center shadow-2xl mb-6 border-8 border-white relative z-10"
         style={{ background: result.color }}
       >
-        <span className="text-6xl leading-none" role="img" aria-label={result.title}>
+        <span
+          className="text-6xl leading-none"
+          role="img"
+          aria-label={result.title}
+        >
           {result.emoji}
         </span>
       </motion.div>
@@ -80,7 +93,7 @@ export function ResultScreen({ resultId, onRestart }: ResultScreenProps) {
           className="text-xs font-bold uppercase tracking-widest mb-10"
           style={{ color: "#3D1A6E", opacity: 0.35 }}
         >
-          Детская выставка · ТРК TRINITI
+          Детская выставка · ТРК TRINITI · Grekova_design_studio
         </p>
 
         <motion.button
