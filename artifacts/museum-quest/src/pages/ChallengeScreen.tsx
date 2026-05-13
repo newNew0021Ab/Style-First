@@ -27,10 +27,6 @@ export function ChallengeScreen({
     setSelectedChoice(previousAnswer ?? null);
   }, [currentChallenge, previousAnswer]);
 
-  const handleSelect = (choice: string) => {
-    setSelectedChoice(choice);
-  };
-
   const handleNext = () => {
     if (!selectedChoice) return;
     onNext(selectedChoice);
@@ -40,10 +36,7 @@ export function ChallengeScreen({
   const progress = (currentChallenge / 8) * 100;
 
   return (
-    <div
-      className="flex flex-col h-full w-full relative"
-      style={{ background: "#FFF8F0" }}
-    >
+    <div className="flex flex-col h-full w-full" style={{ background: "#FFF8F0" }}>
       {/* Top bar */}
       <div className="flex items-center gap-3 px-5 pt-5 pb-2 shrink-0">
         {onBack ? (
@@ -60,18 +53,11 @@ export function ChallengeScreen({
           <div className="w-11 h-11 shrink-0" />
         )}
 
-        {/* Progress */}
         <div className="flex-1 flex flex-col gap-1">
-          <span
-            className="text-sm font-bold text-right"
-            style={{ color: "#3D1A6E", opacity: 0.6 }}
-          >
+          <span className="text-sm font-bold text-right" style={{ color: "#3D1A6E", opacity: 0.5 }}>
             {currentChallenge} / 8
           </span>
-          <div
-            className="w-full h-3 rounded-full overflow-hidden"
-            style={{ background: "#FFE8D6" }}
-          >
+          <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: "#FFE8D6" }}>
             <motion.div
               className="h-full rounded-full"
               style={{ background: "#FF6B6B" }}
@@ -93,85 +79,98 @@ export function ChallengeScreen({
         </motion.button>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-5 w-full max-w-md mx-auto overflow-y-auto py-4">
-        <motion.div
-          key={currentChallenge}
-          initial={{ scale: 0.75, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", bounce: 0.45, duration: 0.5 }}
-          className="w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-lg rotate-3"
-          style={{ background: "#3D1A6E" }}
-        >
-          <Icon
-            className="w-10 h-10 -rotate-3"
-            style={{ color: "#F5A623" }}
-          />
-        </motion.div>
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto px-5 py-2">
+        <div className="flex flex-col items-center w-full max-w-md mx-auto pb-2">
+          <motion.div
+            key={currentChallenge}
+            initial={{ scale: 0.75, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", bounce: 0.45, duration: 0.5 }}
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 shadow-md rotate-3"
+            style={{ background: "#3D1A6E" }}
+          >
+            <Icon className="w-8 h-8 -rotate-3" style={{ color: "#F5A623" }} />
+          </motion.div>
 
-        <motion.h2
-          key={`q-${currentChallenge}`}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-2xl md:text-3xl font-black text-center mb-8 leading-snug"
-          style={{ color: "#3D1A6E" }}
-        >
-          {challenge.question}
-        </motion.h2>
+          <motion.h2
+            key={`q-${currentChallenge}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-xl md:text-2xl font-black text-center mb-4 leading-snug"
+            style={{ color: "#3D1A6E" }}
+          >
+            {challenge.question}
+          </motion.h2>
 
-        <div className="w-full space-y-3">
-          {challenge.choices.map((choice, index) => {
-            const isSelected = selectedChoice === choice;
-            return (
-              <motion.button
-                key={index}
-                data-testid={`button-choice-${index}`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.96 }}
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.15 + index * 0.07 }}
-                onClick={() => handleSelect(choice)}
-                className="w-full p-5 rounded-2xl text-lg font-bold text-left relative overflow-hidden flex items-center min-h-[68px] border-4 transition-colors"
-                style={{
-                  background: isSelected ? "#3D1A6E" : "white",
-                  borderColor: isSelected ? "#3D1A6E" : "#FFE8D6",
-                  color: isSelected ? "white" : "#3D1A6E",
-                  boxShadow: isSelected
-                    ? "0 4px 0 #1a0b30"
-                    : "0 4px 0 #FFE8D6",
-                }}
+          {challenge.riddle && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.18 }}
+              className="w-full rounded-2xl px-5 py-4 mb-5 text-center"
+              style={{ background: "#F0E6FF" }}
+            >
+              <p
+                className="text-base font-bold italic leading-relaxed whitespace-pre-line"
+                style={{ color: "#3D1A6E" }}
               >
-                <motion.div
-                  className="w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 mr-4"
+                {challenge.riddle}
+              </p>
+            </motion.div>
+          )}
+
+          <div className="w-full space-y-3">
+            {challenge.choices.map((choice, index) => {
+              const isSelected = selectedChoice === choice;
+              return (
+                <motion.button
+                  key={index}
+                  data-testid={`button-choice-${index}`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.96 }}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15 + index * 0.06 }}
+                  onClick={() => setSelectedChoice(choice)}
+                  className="w-full p-4 rounded-2xl text-base font-bold text-left flex items-center min-h-[60px] border-4 transition-colors"
                   style={{
-                    borderColor: isSelected ? "rgba(255,255,255,0.4)" : "#FFE8D6",
-                    background: isSelected ? "rgba(255,255,255,0.15)" : "transparent",
+                    background: isSelected ? "#3D1A6E" : "white",
+                    borderColor: isSelected ? "#3D1A6E" : "#FFE8D6",
+                    color: isSelected ? "white" : "#3D1A6E",
+                    boxShadow: isSelected ? "0 4px 0 #1a0b30" : "0 4px 0 #FFE8D6",
                   }}
-                  animate={{ scale: isSelected ? [1, 1.2, 1] : 1 }}
-                  transition={{ duration: 0.25 }}
                 >
-                  {isSelected && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="w-3 h-3 rounded-full bg-white"
-                    />
-                  )}
-                </motion.div>
-                <span>{choice}</span>
-              </motion.button>
-            );
-          })}
+                  <motion.div
+                    className="w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 mr-3"
+                    style={{
+                      borderColor: isSelected ? "rgba(255,255,255,0.4)" : "#FFE8D6",
+                      background: isSelected ? "rgba(255,255,255,0.15)" : "transparent",
+                    }}
+                    animate={{ scale: isSelected ? [1, 1.2, 1] : 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {isSelected && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-3 h-3 rounded-full bg-white"
+                      />
+                    )}
+                  </motion.div>
+                  <span>{choice}</span>
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* Bottom "Далее" button */}
-      <div className="px-5 pb-6 pt-2 shrink-0">
+      <div className="px-5 pb-6 pt-3 shrink-0">
         <motion.button
           data-testid="button-next"
-          whileHover={selectedChoice ? { scale: 1.02 } : {}}
           whileTap={selectedChoice ? { scale: 0.96 } : {}}
           onClick={handleNext}
           disabled={!selectedChoice}
@@ -182,21 +181,11 @@ export function ChallengeScreen({
             boxShadow: selectedChoice ? "0 6px 0 #c4841a" : "none",
             cursor: selectedChoice ? "pointer" : "default",
           }}
-          animate={{
-            scale: selectedChoice ? [1, 1.03, 1] : 1,
-          }}
-          transition={{ duration: 0.3 }}
         >
           {currentChallenge < 8 ? (
-            <>
-              Далее
-              <ArrowRight className="w-6 h-6" strokeWidth={2.5} />
-            </>
+            <>Далее <ArrowRight className="w-5 h-5" strokeWidth={2.5} /></>
           ) : (
-            <>
-              Узнать результат
-              <ArrowRight className="w-6 h-6" strokeWidth={2.5} />
-            </>
+            <>Узнать результат <ArrowRight className="w-5 h-5" strokeWidth={2.5} /></>
           )}
         </motion.button>
       </div>
