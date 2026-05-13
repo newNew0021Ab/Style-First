@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { results } from "../data/results";
-import { RotateCcw, Award, Star } from "lucide-react";
+import { RotateCcw, Star } from "lucide-react";
 
 interface ResultScreenProps {
   resultId: string;
@@ -8,26 +8,33 @@ interface ResultScreenProps {
 }
 
 export function ResultScreen({ resultId, onRestart }: ResultScreenProps) {
-  const result = results.find(r => r.id === resultId) || results[0];
+  const result = results.find(r => r.id === resultId) || results[4];
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full bg-[#FFF8F0] p-6 text-center overflow-y-auto">
-      {/* Confetti / Sparkles effect */}
+    <div
+      className="flex flex-col items-center justify-center h-full w-full p-6 text-center overflow-y-auto relative"
+      style={{ background: "#FFF8F0" }}
+    >
+      {/* Floating stars */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(12)].map((_, i) => (
+        {[...Array(10)].map((_, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 100, x: (Math.random() - 0.5) * 200 }}
-            animate={{ 
-              opacity: [0, 1, 0], 
-              y: -500, 
-              x: (Math.random() - 0.5) * 300,
-              rotate: Math.random() * 360
+            initial={{ opacity: 0, y: 80 }}
+            animate={{ opacity: [0, 1, 0], y: -400, x: (i % 2 === 0 ? 1 : -1) * (20 + i * 18) }}
+            transition={{
+              duration: 2.8 + i * 0.3,
+              repeat: Infinity,
+              delay: i * 0.4,
+              ease: "easeOut"
             }}
-            transition={{ duration: 2.5 + Math.random() * 2, repeat: Infinity, delay: Math.random() * 2 }}
             className="absolute bottom-0 left-1/2"
           >
-            <Star className="w-6 h-6 text-[#F5A623]" fill="#F5A623" />
+            <Star
+              className="w-5 h-5"
+              style={{ color: i % 3 === 0 ? "#F5A623" : i % 3 === 1 ? "#FF6B6B" : "#C084FC" }}
+              fill={i % 3 === 0 ? "#F5A623" : i % 3 === 1 ? "#FF6B6B" : "#C084FC"}
+            />
           </motion.div>
         ))}
       </div>
@@ -36,35 +43,59 @@ export function ResultScreen({ resultId, onRestart }: ResultScreenProps) {
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", damping: 12, stiffness: 100 }}
-        className="w-40 h-40 rounded-full flex items-center justify-center shadow-2xl mb-8 border-8 border-white relative z-10"
-        style={{ backgroundColor: result.color }}
+        className="w-36 h-36 rounded-full flex items-center justify-center shadow-2xl mb-6 border-8 border-white relative z-10"
+        style={{ background: result.color }}
       >
-        <Award className="w-20 h-20 text-white" />
+        <span className="text-6xl leading-none" role="img" aria-label={result.title}>
+          {result.emoji}
+        </span>
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.35 }}
         className="relative z-10 max-w-sm"
       >
-        <p className="text-xl font-bold text-[#FF6B6B] mb-2 uppercase tracking-wider">
+        <p
+          className="text-sm font-bold uppercase tracking-widest mb-2"
+          style={{ color: "#FF6B6B" }}
+        >
           Твоё звание:
         </p>
-        <h1 className="text-4xl md:text-5xl font-black text-[#3D1A6E] mb-6 leading-tight">
+        <h1
+          className="text-3xl md:text-4xl font-black mb-4 leading-tight"
+          style={{ color: "#3D1A6E" }}
+        >
           {result.title}
         </h1>
-        <p className="text-xl font-bold text-[#3D1A6E] opacity-80 mb-12">
+        <p
+          className="text-base font-bold mb-3 leading-relaxed"
+          style={{ color: "#3D1A6E", opacity: 0.7 }}
+        >
           {result.description}
         </p>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onRestart}
-          className="bg-[#3D1A6E] hover:bg-[#2c1352] text-white text-xl font-bold py-5 px-8 rounded-full shadow-[0_6px_0_#1a0b30] transition-colors w-full flex items-center justify-center gap-3"
+        <p
+          className="text-xs font-bold uppercase tracking-widest mb-10"
+          style={{ color: "#3D1A6E", opacity: 0.35 }}
         >
-          <RotateCcw className="w-6 h-6" />
+          Детская выставка · ТРК TRINITI
+        </p>
+
+        <motion.button
+          data-testid="button-restart"
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={onRestart}
+          className="w-full py-5 rounded-2xl text-lg font-black flex items-center justify-center gap-3"
+          style={{
+            background: "#3D1A6E",
+            color: "white",
+            boxShadow: "0 6px 0 #1a0b30",
+          }}
+        >
+          <RotateCcw className="w-5 h-5" strokeWidth={2.5} />
           Пройти снова
         </motion.button>
       </motion.div>
