@@ -45,8 +45,8 @@ export const results: Result[] = [
 ];
 
 export const getResult = (answers: string[]): string => {
-  // Юный искусствовед: correctly found blue painting (Котик в Заполярье for Q1)
-  if (answers[0] === "«Котик в Заполярье»") return "art-critic";
+  // Юный искусствовед: correctly found blue painting (Дельфин for Q1)
+  if (answers[0] === "«Дельфин»") return "art-critic";
 
   // Знаток сказок: found the Dragon or Koshchei
   if (answers[2] === "«Он Дракон»" || answers[4] === "«История про Кащея»") return "fairy-tale";
