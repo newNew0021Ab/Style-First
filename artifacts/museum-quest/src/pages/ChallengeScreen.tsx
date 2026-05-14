@@ -1,48 +1,54 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, X, ArrowRight, Check } from "lucide-react";
+import { X, ArrowRight, Check, Heart } from "lucide-react";
 import { challenges } from "../data/challenges";
+
+const MAX_MISTAKES = 3;
 
 interface ChallengeScreenProps {
   currentChallenge: number;
-  previousAnswer?: string;
-  onNext: (answer: string) => void;
-  onBack?: () => void;
+  mistakes: number;
+  onNext: (answer: string, isCorrect: boolean) => void;
   onExit: () => void;
 }
 
 export function ChallengeScreen({
   currentChallenge,
-  previousAnswer,
+  mistakes,
   onNext,
-  onBack,
   onExit,
 }: ChallengeScreenProps) {
   const challenge = challenges[currentChallenge - 1];
-  const [selectedChoice, setSelectedChoice] = useState<string | null>(
-    previousAnswer ?? null
-  );
-  const [confirmed, setConfirmed] = useState<boolean>(!!previousAnswer);
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const [justWrong, setJustWrong] = useState(false);
 
   useEffect(() => {
-    setSelectedChoice(previousAnswer ?? null);
-    setConfirmed(!!previousAnswer);
-  }, [currentChallenge, previousAnswer]);
+    setSelectedChoice(null);
+    setConfirmed(false);
+    setJustWrong(false);
+  }, [currentChallenge]);
+
+  const isCorrect = selectedChoice === challenge.correctAnswer;
+  // Include the pending mistake in the displayed count before it's committed to App state
+  const displayMistakes = mistakes + (justWrong ? 1 : 0);
+  const livesLeft = MAX_MISTAKES - displayMistakes;
 
   const handleConfirm = () => {
     if (!selectedChoice) return;
     setConfirmed(true);
+    if (selectedChoice !== challenge.correctAnswer) {
+      setJustWrong(true);
+    }
   };
 
   const handleNext = () => {
     if (!selectedChoice || !confirmed) return;
-    onNext(selectedChoice);
+    onNext(selectedChoice, isCorrect);
   };
 
   const Icon = challenge.icon;
   const progress = (currentChallenge / 8) * 100;
-
-  const isCorrect = selectedChoice === challenge.correctAnswer;
 
   const getChoiceStyle = (choice: string) => {
     const isSelected = selectedChoice === choice;
@@ -79,7 +85,7 @@ export function ChallengeScreen({
       background: "white",
       borderColor: "#FFE8D6",
       color: "#3D1A6E",
-      opacity: 0.45,
+      opacity: 0.4,
       boxShadow: "0 4px 0 #FFE8D6",
     };
   };
@@ -94,41 +100,56 @@ export function ChallengeScreen({
         background: isSelected ? "rgba(255,255,255,0.15)" : "transparent",
       };
     }
-
-    if (isThisCorrect) {
-      return { borderColor: "#4CAF50", background: "#4CAF50" };
-    }
-
-    if (isSelected && !isThisCorrect) {
-      return { borderColor: "#EF9A9A", background: "#EF9A9A" };
-    }
-
+    if (isThisCorrect) return { borderColor: "#4CAF50", background: "#4CAF50" };
+    if (isSelected && !isThisCorrect) return { borderColor: "#EF9A9A", background: "#EF9A9A" };
     return { borderColor: "#FFE8D6", background: "transparent" };
   };
 
   return (
     <div className="flex flex-col h-full w-full" style={{ background: "#FFF8F0" }}>
-      {/* Top bar */}
-      <div className="flex items-center gap-3 px-5 pt-5 pb-2 shrink-0">
-        {onBack ? (
-          <motion.button
-            data-testid="button-back"
-            whileTap={{ scale: 0.88 }}
-            onClick={onBack}
-            className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
-            style={{ background: "#F0E6FF", color: "#3D1A6E" }}
-          >
-            <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
-          </motion.button>
-        ) : (
-          <div className="w-11 h-11 shrink-0" />
-        )}
 
+      {/* Top bar */}
+      <div className="flex items-center gap-3 px-5 pt-5 pb-3 shrink-0">
+
+        {/* Hearts — lives display */}
+        <div className="flex items-center gap-1 shrink-0">
+          {[0, 1, 2].map((i) => {
+            // Hearts fill left-to-right; rightmost heart is lost first
+            const heartIsLost = i >= livesLeft;
+            const isJustNowLost = heartIsLost && justWrong && i === MAX_MISTAKES - mistakes - 1;
+            return (
+              <motion.div
+                key={`heart-${i}-${heartIsLost}`}
+                initial={isJustNowLost ? { scale: 1.5, rotate: -20 } : { scale: 1 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", bounce: 0.55, duration: 0.5 }}
+              >
+                <Heart
+                  className="w-6 h-6"
+                  style={{
+                    color: heartIsLost ? "#D1D5DB" : "#FF6B6B",
+                    fill: heartIsLost ? "#D1D5DB" : "#FF6B6B",
+                    transition: "fill 0.3s ease, color 0.3s ease",
+                  }}
+                  strokeWidth={0}
+                />
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Progress */}
         <div className="flex-1 flex flex-col gap-1">
-          <span className="text-sm font-bold text-right" style={{ color: "#3D1A6E", opacity: 0.5 }}>
+          <span
+            className="text-sm font-bold text-right"
+            style={{ color: "#3D1A6E", opacity: 0.45 }}
+          >
             {currentChallenge} / 8
           </span>
-          <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: "#FFE8D6" }}>
+          <div
+            className="w-full h-3 rounded-full overflow-hidden"
+            style={{ background: "#FFE8D6" }}
+          >
             <motion.div
               className="h-full rounded-full"
               style={{ background: "#FF6B6B" }}
@@ -139,6 +160,7 @@ export function ChallengeScreen({
           </div>
         </div>
 
+        {/* Exit */}
         <motion.button
           data-testid="button-exit"
           whileTap={{ scale: 0.88 }}
@@ -150,9 +172,26 @@ export function ChallengeScreen({
         </motion.button>
       </div>
 
+      {/* Warning strip when 1 life left */}
+      <AnimatePresence>
+        {livesLeft === 1 && confirmed && !isCorrect && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mx-5 mb-1 rounded-xl px-4 py-2 text-center text-sm font-black"
+            style={{ background: "#FFEBEE", color: "#C62828" }}
+          >
+            ⚠️ Осторожно! Осталась последняя попытка!
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-5 py-2">
         <div className="flex flex-col items-center w-full max-w-md mx-auto pb-2">
+
+          {/* Icon */}
           <motion.div
             key={currentChallenge}
             initial={{ scale: 0.75, opacity: 0 }}
@@ -164,6 +203,7 @@ export function ChallengeScreen({
             <Icon className="w-8 h-8 -rotate-3" style={{ color: "#F5A623" }} />
           </motion.div>
 
+          {/* Question */}
           <motion.h2
             key={`q-${currentChallenge}`}
             initial={{ opacity: 0, y: 10 }}
@@ -175,6 +215,7 @@ export function ChallengeScreen({
             {challenge.question}
           </motion.h2>
 
+          {/* Riddle */}
           {challenge.riddle && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -192,6 +233,7 @@ export function ChallengeScreen({
             </motion.div>
           )}
 
+          {/* Choices */}
           <div className="w-full space-y-3">
             {challenge.choices.map((choice, index) => {
               const isSelected = selectedChoice === choice;
@@ -208,19 +250,14 @@ export function ChallengeScreen({
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.15 + index * 0.06 }}
-                  onClick={() => {
-                    if (!confirmed) setSelectedChoice(choice);
-                  }}
+                  onClick={() => { if (!confirmed) setSelectedChoice(choice); }}
                   className="w-full p-4 rounded-2xl text-base font-bold text-left flex items-center min-h-[60px] border-4 transition-all"
-                  style={{
-                    ...choiceStyle,
-                    cursor: confirmed ? "default" : "pointer",
-                  }}
+                  style={{ ...choiceStyle, cursor: confirmed ? "default" : "pointer" }}
                 >
                   <motion.div
                     className="w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 mr-3"
                     style={circleStyle}
-                    animate={confirmed && isThisCorrect ? { scale: [1, 1.2, 1] } : {}}
+                    animate={confirmed && isThisCorrect ? { scale: [1, 1.25, 1] } : {}}
                     transition={{ duration: 0.3 }}
                   >
                     {confirmed && isThisCorrect && (
@@ -229,7 +266,7 @@ export function ChallengeScreen({
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", bounce: 0.5, duration: 0.3 }}
                       >
-                        <Check className="w-4 h-4" style={{ color: "white" }} strokeWidth={3} />
+                        <Check className="w-4 h-4 text-white" strokeWidth={3} />
                       </motion.div>
                     )}
                     {confirmed && isSelected && !isThisCorrect && (
@@ -238,7 +275,7 @@ export function ChallengeScreen({
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", bounce: 0.5, duration: 0.3 }}
                       >
-                        <X className="w-4 h-4" style={{ color: "white" }} strokeWidth={3} />
+                        <X className="w-4 h-4 text-white" strokeWidth={3} />
                       </motion.div>
                     )}
                     {!confirmed && isSelected && (
@@ -255,14 +292,14 @@ export function ChallengeScreen({
             })}
           </div>
 
-          {/* Feedback message after confirm */}
+          {/* Feedback message */}
           <AnimatePresence>
             {confirmed && (
               <motion.div
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ delay: 0.15, type: "spring", bounce: 0.4 }}
+                transition={{ delay: 0.12, type: "spring", bounce: 0.4 }}
                 className="w-full mt-4 px-5 py-4 rounded-2xl text-center font-black text-base"
                 style={{
                   background: isCorrect ? "#E8F5E9" : "#FFEBEE",
@@ -270,7 +307,9 @@ export function ChallengeScreen({
                   border: `2px solid ${isCorrect ? "#4CAF50" : "#EF9A9A"}`,
                 }}
               >
-                {isCorrect ? "Правильно! Молодец! 🎉" : `Правильный ответ: ${challenge.correctAnswer}`}
+                {isCorrect
+                  ? "Правильно! Молодец! 🎉"
+                  : `Правильный ответ: ${challenge.correctAnswer}`}
               </motion.div>
             )}
           </AnimatePresence>
@@ -279,7 +318,6 @@ export function ChallengeScreen({
 
       {/* Bottom buttons */}
       <div className="px-5 pb-6 pt-3 shrink-0 flex flex-col gap-3">
-        {/* Confirm button — shown when choice selected but not yet confirmed */}
         <AnimatePresence>
           {!confirmed && selectedChoice && (
             <motion.button
@@ -304,7 +342,6 @@ export function ChallengeScreen({
           )}
         </AnimatePresence>
 
-        {/* Next button — shown after confirmation */}
         <AnimatePresence>
           {confirmed && (
             <motion.button
@@ -313,7 +350,7 @@ export function ChallengeScreen({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
-              transition={{ type: "spring", bounce: 0.4, duration: 0.35, delay: 0.2 }}
+              transition={{ type: "spring", bounce: 0.4, duration: 0.35, delay: 0.25 }}
               whileTap={{ scale: 0.96 }}
               onClick={handleNext}
               className="w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-3"
@@ -332,15 +369,10 @@ export function ChallengeScreen({
           )}
         </AnimatePresence>
 
-        {/* Placeholder to keep layout stable when no buttons yet */}
         {!confirmed && !selectedChoice && (
           <div
-            className="w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-3"
-            style={{
-              background: "#FFE8D6",
-              color: "#C4A882",
-              cursor: "default",
-            }}
+            className="w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center"
+            style={{ background: "#FFE8D6", color: "#C4A882", cursor: "default" }}
           >
             Выбери ответ
           </div>

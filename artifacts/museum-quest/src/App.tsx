@@ -6,15 +6,18 @@ import { StartScreen } from "./pages/StartScreen";
 import { ChallengeScreen } from "./pages/ChallengeScreen";
 import { LoadingScreen } from "./pages/LoadingScreen";
 import { ResultScreen } from "./pages/ResultScreen";
+import { GameOverScreen } from "./pages/GameOverScreen";
 import { ExitConfirmDialog } from "./pages/ExitConfirmDialog";
 import { getResult } from "./data/results";
 import { AnimatePresence, motion } from "framer-motion";
 
 const queryClient = new QueryClient();
 
+// Screens: 0=start, 1-8=challenges, 9=loading, 10=result, 11=gameover
 function Game() {
   const [currentScreen, setCurrentScreen] = useState<number>(0);
   const [answers, setAnswers] = useState<string[]>([]);
+  const [mistakes, setMistakes] = useState<number>(0);
   const [result, setResult] = useState<string>("");
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const directionRef = useRef<1 | -1>(1);
@@ -23,13 +26,22 @@ function Game() {
     directionRef.current = 1;
     setCurrentScreen(1);
     setAnswers([]);
+    setMistakes(0);
     setResult("");
   };
 
-  const handleNext = (answer: string) => {
+  const handleNext = (answer: string, isCorrect: boolean) => {
     directionRef.current = 1;
     const newAnswers = [...answers, answer];
+    const newMistakes = isCorrect ? mistakes : mistakes + 1;
+
     setAnswers(newAnswers);
+    setMistakes(newMistakes);
+
+    if (newMistakes >= 3) {
+      setCurrentScreen(11);
+      return;
+    }
 
     if (currentScreen < 8) {
       setCurrentScreen(currentScreen + 1);
@@ -42,14 +54,6 @@ function Game() {
     }
   };
 
-  const handleBack = () => {
-    directionRef.current = -1;
-    if (currentScreen > 1) {
-      setAnswers(answers.slice(0, -1));
-      setCurrentScreen(currentScreen - 1);
-    }
-  };
-
   const handleExitRequest = () => {
     setShowExitConfirm(true);
   };
@@ -59,6 +63,7 @@ function Game() {
     directionRef.current = -1;
     setCurrentScreen(0);
     setAnswers([]);
+    setMistakes(0);
     setResult("");
   };
 
@@ -70,6 +75,7 @@ function Game() {
     directionRef.current = 1;
     setCurrentScreen(0);
     setAnswers([]);
+    setMistakes(0);
     setResult("");
   };
 
@@ -105,9 +111,8 @@ function Game() {
             >
               <ChallengeScreen
                 currentChallenge={currentScreen}
-                previousAnswer={answers[currentScreen - 1]}
+                mistakes={mistakes}
                 onNext={handleNext}
-                onBack={currentScreen > 1 ? handleBack : undefined}
                 onExit={handleExitRequest}
               />
             </motion.div>
@@ -140,6 +145,20 @@ function Game() {
               <ResultScreen resultId={result} onRestart={handleRestart} />
             </motion.div>
           )}
+
+          {currentScreen === 11 && (
+            <motion.div
+              key="gameover"
+              custom={direction}
+              variants={screenVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="absolute inset-0"
+            >
+              <GameOverScreen onRestart={handleRestart} />
+            </motion.div>
+          )}
         </AnimatePresence>
 
         <AnimatePresence>
@@ -163,12 +182,12 @@ const screenVariants = {
   center: {
     x: 0,
     opacity: 1,
-    transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] },
+    transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] as [number, number, number, number] },
   },
   exit: (direction: number) => ({
     x: direction > 0 ? -60 : 60,
     opacity: 0,
-    transition: { duration: 0.22, ease: [0.32, 0.72, 0, 1] },
+    transition: { duration: 0.22, ease: [0.32, 0.72, 0, 1] as [number, number, number, number] },
   }),
 };
 
