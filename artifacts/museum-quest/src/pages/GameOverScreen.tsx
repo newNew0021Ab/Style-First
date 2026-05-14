@@ -82,13 +82,14 @@ export function GameOverScreen({ onRestart }: GameOverScreenProps) {
         >
           <p
             className="text-base font-bold leading-relaxed"
-            style={{ color: "#FFF8F0", opacity: 0.9 }}
+            style={{ color: "#FFF8F0" }}
           >
             Не расстраивайся — даже великие художники учились на ошибках!
             Ты уже почти настоящий искусствовед.
           </p>
           <p
-            className="text-2xl mt-3"
+            className="text-xl font-black mt-3"
+            style={{ color: "#F5A623" }}
           >
             💪 Ещё разок — и победа твоя!
           </p>

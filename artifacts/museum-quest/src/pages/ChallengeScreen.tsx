@@ -108,68 +108,79 @@ export function ChallengeScreen({
   return (
     <div className="flex flex-col h-full w-full" style={{ background: "#FFF8F0" }}>
 
-      {/* Top bar */}
-      <div className="flex items-center gap-3 px-5 pt-5 pb-3 shrink-0">
-
-        {/* Hearts — lives display */}
-        <div className="flex items-center gap-1 shrink-0">
-          {[0, 1, 2].map((i) => {
-            // Hearts fill left-to-right; rightmost heart is lost first
-            const heartIsLost = i >= livesLeft;
-            const isJustNowLost = heartIsLost && justWrong && i === MAX_MISTAKES - mistakes - 1;
-            return (
-              <motion.div
-                key={`heart-${i}-${heartIsLost}`}
-                initial={isJustNowLost ? { scale: 1.5, rotate: -20 } : { scale: 1 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", bounce: 0.55, duration: 0.5 }}
-              >
-                <Heart
-                  className="w-6 h-6"
-                  style={{
-                    color: heartIsLost ? "#D1D5DB" : "#FF6B6B",
-                    fill: heartIsLost ? "#D1D5DB" : "#FF6B6B",
-                    transition: "fill 0.3s ease, color 0.3s ease",
-                  }}
-                  strokeWidth={0}
-                />
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Progress */}
-        <div className="flex-1 flex flex-col gap-1">
-          <span
-            className="text-sm font-bold text-right"
-            style={{ color: "#3D1A6E", opacity: 0.45 }}
-          >
-            {currentChallenge} / 8
-          </span>
-          <div
-            className="w-full h-3 rounded-full overflow-hidden"
-            style={{ background: "#FFE8D6" }}
-          >
-            <motion.div
-              className="h-full rounded-full"
-              style={{ background: "#FF6B6B" }}
-              initial={{ width: `${((currentChallenge - 1) / 8) * 100}%` }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.45, ease: "easeInOut" }}
-            />
-          </div>
-        </div>
-
-        {/* Exit */}
-        <motion.button
-          data-testid="button-exit"
-          whileTap={{ scale: 0.88 }}
-          onClick={onExit}
-          className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
-          style={{ background: "#FFE8D6", color: "#FF6B6B" }}
+      {/* Top bar — unified HUD card */}
+      <div className="px-4 pt-4 pb-2 shrink-0">
+        <div
+          className="flex items-center gap-3 rounded-2xl px-4 py-3"
+          style={{ background: "#F0E6FF" }}
         >
-          <X className="w-5 h-5" strokeWidth={2.5} />
-        </motion.button>
+          {/* Hearts */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {[0, 1, 2].map((i) => {
+              const heartIsLost = i >= livesLeft;
+              const isJustNowLost = heartIsLost && justWrong && i === MAX_MISTAKES - mistakes - 1;
+              return (
+                <motion.div
+                  key={`heart-${i}-${heartIsLost}`}
+                  initial={isJustNowLost ? { scale: 1.6, rotate: -25 } : { scale: 1 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", bounce: 0.6, duration: 0.5 }}
+                >
+                  <Heart
+                    className="w-7 h-7"
+                    style={{
+                      color: heartIsLost ? "#C4B5D4" : "#FF6B6B",
+                      fill: heartIsLost ? "#C4B5D4" : "#FF6B6B",
+                      transition: "fill 0.3s ease, color 0.3s ease",
+                    }}
+                    strokeWidth={0}
+                  />
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Divider */}
+          <div className="w-px self-stretch rounded-full mx-1" style={{ background: "#3D1A6E", opacity: 0.15 }} />
+
+          {/* Progress */}
+          <div className="flex-1 flex flex-col gap-1.5">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-black" style={{ color: "#3D1A6E", opacity: 0.4 }}>
+                Вопрос
+              </span>
+              <span className="text-xs font-black" style={{ color: "#3D1A6E" }}>
+                {currentChallenge} / 8
+              </span>
+            </div>
+            <div
+              className="w-full h-2.5 rounded-full overflow-hidden"
+              style={{ background: "rgba(61,26,110,0.12)" }}
+            >
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: "#3D1A6E" }}
+                initial={{ width: `${((currentChallenge - 1) / 8) * 100}%` }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.45, ease: "easeInOut" }}
+              />
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px self-stretch rounded-full mx-1" style={{ background: "#3D1A6E", opacity: 0.15 }} />
+
+          {/* Exit */}
+          <motion.button
+            data-testid="button-exit"
+            whileTap={{ scale: 0.85 }}
+            onClick={onExit}
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: "rgba(255,107,107,0.15)", color: "#FF6B6B" }}
+          >
+            <X className="w-4 h-4" strokeWidth={2.5} />
+          </motion.button>
+        </div>
       </div>
 
       {/* Warning strip when 1 life left */}
