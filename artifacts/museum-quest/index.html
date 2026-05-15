@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
@@ -13,9 +13,24 @@
     <meta name="twitter:title" content="Миссия: Искусствовед" />
     <meta name="twitter:description" content="Детская интерактивная игра-квест на выставке ТРК TRINITI" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Preconnect to font servers -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Non-blocking Nunito font load (Cyrillic + Latin) -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap&subset=cyrillic,latin"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap&subset=cyrillic,latin"
+      />
+    </noscript>
   </head>
   <body>
     <div id="root"></div>

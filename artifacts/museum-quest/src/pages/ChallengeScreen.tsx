@@ -297,7 +297,7 @@ export function ChallengeScreen({
                       />
                     )}
                   </motion.div>
-                  <span>{choice}</span>
+                  <span className="min-w-0 break-words">{choice}</span>
                 </motion.button>
               );
             })}
@@ -382,7 +382,7 @@ export function ChallengeScreen({
 
         {!confirmed && !selectedChoice && (
           <div
-            className="w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center"
+            className="w-full py-4 rounded-2xl text-base font-black flex items-center justify-center whitespace-nowrap"
             style={{ background: "#FFE8D6", color: "#C4A882", cursor: "default" }}
           >
             Выбери ответ
